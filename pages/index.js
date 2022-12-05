@@ -3,7 +3,8 @@ import styles from '../styles/home.module.css'
 import Image from 'next/image'
 import {LoginPage} from '../pages/login'
 import {ListPage} from '../pages/list'
-import Button from '../components/Button'
+import { Button, Form, Stack  } from 'react-bootstrap';
+import { EnvelopeDash, Save } from 'react-bootstrap-icons';
 
 
 function Home() {
@@ -25,29 +26,22 @@ function Home() {
   };
 
   return (
-    <main>
-      <div className={styles.bgWrap}>
-        <Image
-          src="https://cdn.pixabay.com/photo/2018/04/16/12/59/mountains-3324569_960_720.jpg"
-          alt="Background"
-          quality={100}
-          layout="fill"
-        />
-     </div>
-     <h1 className={styles.h1}>MailMasks</h1>
-     <div>
-     {!token ? (
-          <div style={{width: '100%', height: '100%'}}>
-          <p style={{textAlign: 'center'}}>You must login to your FastMail account to continue. Type your Api Token and press save. This token won't leave the browser and will not be shared with anyone else.</p>
-          
-          <form style={{textAlign: 'center'}} onSubmit={addToken}>
-            <input placeholder='Type your token here...' id="token" type="text" name="token" />
-            <Button type="Submit">Save</Button>
-          </form>
+    <main >
+     <h1 className={styles.h1}> <EnvelopeDash/> MailMasks</h1>
+     <p style={{textAlign: 'center', width: '100%'}}>Made by NeroPako</p>
+      <div style={{margin: '20px'}}>
+      {!token ? (
+          <div style={{textAlign: 'center', width: '90%', display: 'flex', alignContent: 'center', justifyContent: 'center'}}>
+             <Stack direction="vertical" gap={3}>
+             <h5>You must login to your FastMail account to continue. Type your Api Token and press save. This token won't leave the browser and will not be shared with anyone else.</h5>
+              <Form onSubmit={addToken}>
+                  <Form.Control id="token" name="token"  type="password" placeholder="Type your token here..." />
+                  <Button style={{marginTop: '10px'}} variant="primary" type="submit">Save</Button>
+              </Form>
+             </Stack>
           </div>
         ) : <ListPage/>}
-     </div>
-      <p style={{position: 'fixed', bottom: '0', textAlign: 'center', width: '100%'}}>© Picture from <a href="https://pixabay.com/it/users/eriktanghe-8013345/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=3324569">Erik Tanghe</a> on <a href="https://pixabay.com/it//?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=3324569">Pixabay</a></p>
+      </div>
     </main>
   )
 }
