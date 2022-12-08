@@ -6,7 +6,6 @@ import {ListPage} from '../pages/list'
 import { Button, Form, Stack  } from 'react-bootstrap';
 import { EnvelopeDash, Save } from 'react-bootstrap-icons';
 
-
 function Home() {
   const [token, setToken] = useState();
   const loadData = (() => {

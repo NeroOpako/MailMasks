@@ -6,22 +6,10 @@ import { list, getSession } from 'fastmail-masked-email';
 
 export function LoginPage(token) {
   
-
-  const callAPI = async () => {
-    try {
-      const session = await getSession('fmu1-98814015-75e35e610573b80dc05f16b2566c65ef-0-f7b28fbe7d9493034621f007a8e7ac1e');
-      const myMaskedEmails = await list(session);
-      console.log(myMaskedEmails);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   const addToken = (e) => {
     e.preventDefault();
     localStorage.setItem("token",  e.target.token.value);
   };
-
 
   return (
     <div style={{width: '100%', height: '100%'}}>
