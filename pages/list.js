@@ -1,8 +1,7 @@
 import { useCallback, useState, useEffect } from 'react'
-import { remove } from 'lodash'
-import { list, getSession, create, disable, enable, update } from 'fastmail-masked-email';
+import { list, getSession, create, disable, enable, update, remove } from 'fastmail-masked-email';
 import { Button, Toast, ToastContainer, Stack, Spinner, ListGroup, Container, Row, Col, Modal  } from 'react-bootstrap';
-import { Pencil, SlashCircle, Clipboard, Save } from 'react-bootstrap-icons';
+import { Pencil, SlashCircle, Clipboard } from 'react-bootstrap-icons';
 
 export function ListPage() {
   const [session, setSession] = useState(null)
@@ -12,17 +11,34 @@ export function ListPage() {
   const [showToast, setShowToast] = useState(false)
   const [edit, setEdit] = useState(null)
   const [elem, setElem] = useState({email : '', description: ''})
+  const [showBlocked, setShowBlocked] = useState(false)
 
-  const handleClose = () => {
+  const handleClose = async () => {
     setShow(false);
-    setElem({email : '', description: ''});
-    setItems(items);
-    setEdit(false);
+    if(!edit) {
+      await remove(elem.id, session).finally(() => {
+        setElem({email : '', description: ''});
+        setItems(items);
+        setEdit(false);
+      });
+    } else {
+      setElem({email : '', description: ''});
+      setItems(items);
+      setEdit(false);
+    }
   } 
-  const handleShow = (edit, elem) => {
-    setShow(true);
-    setEdit(edit);
-    setElem(elem);
+  const handleShow = async (el) => {
+    setEdit(el);
+    if(!el) {
+      await create(session).then((elem) => {
+        el = elem;
+        setElem(el);
+        setShow(true);
+      });
+    } else {
+      setElem(el);
+      setShow(true);
+    }
   } 
 
  const saveItem = async () => {
@@ -30,22 +46,30 @@ export function ListPage() {
       elem.description = document.getElementById('description').value;
       await update(elem.id, session, {
         description: elem.description ? elem.description : ''
+      }).then(() => {
+        if(edit) {
+          items.splice(items.map(function(e) { return e.id; }).indexOf(elem.id), 1, elem);
+        } else {
+          items.push(elem);
+        }
       });
-      items.splice(items.map(function(e) { return e.id; }).indexOf(elem.id), 1, elem);
     } catch (err) {
       console.log(err);
     }
     handleClose();
   };
 
-  const toggleItem = async (el) => {
+  const toggleItem = async () => {
     try {
-      if(el.state === 'enabled') {
-        await disable(el.id, session);
+      if(elem.state === 'enabled') {
+        await disable(elem.id, session).then(() => {
+          items.splice(items.map(function(e) { return e.id; }).indexOf(elem.id), 1, elem);
+        });
       } else {
-        await enable(el.id, session);
+        await enable(elem.id, session).then(() => {
+          items.splice(items.map(function(e) { return e.id; }).indexOf(elem.id), 1, elem);
+        });
       }
-      items.splice(items.map(function(e) { return e.id; }).indexOf(el.id), 1, el);
     } catch (err) {
       console.log(err);
     }
@@ -54,8 +78,9 @@ export function ListPage() {
 
   const copyEmail = async (email) => {
     try {
-      await navigator.clipboard.writeText(email);
-      setShowToast(true);
+      await navigator.clipboard.writeText(email).then(() => {
+        setShowToast(true);
+      });
     } catch(err) {
       alert('Error in copying text: ', err);
     }
@@ -76,12 +101,20 @@ export function ListPage() {
     }    
   }, [])
 
-  if (isLoading) return <Spinner animation="border" variant="primary" />
-  if (!items) return <p>No data</p>
+  if (isLoading) return (
+      <div style={{width: '100%', textAlign: 'center'}}>
+        <Spinner animation="border" variant="primary" />
+      </div>
+    )
+  if (!items) return (
+    <div style={{width: '100%', textAlign: 'center'}}>
+      <p>No masks found</p>
+    </div>
+  )
 
   const final = [];
     for (let elem of items) {
-      if(elem.state !== 'disabled' && elem.state !== 'deleted') {
+      if((!showBlocked && elem.state !== 'disabled' && elem.state !== 'deleted') || (showBlocked && elem.state === 'disabled')) {
         final.push ( 
           <ListGroup.Item key={elem.id}>
             <Container>
@@ -93,10 +126,9 @@ export function ListPage() {
                 </Stack>
               </Col>
               <Col style={{width: '100%', textAlign: 'end'}}>
-               <div>
+                <div>
                   <Button variant="success" onClick={() => copyEmail(elem.email)}><Clipboard/></Button>
-                  <Button style={{marginLeft: '5px', marginRight: '5px'}} variant="warning" onClick={() => handleShow(true, elem)}><Pencil/></Button>
-                  <Button variant="danger" onClick={() => toggleItem(elem)}><SlashCircle/></Button>
+                  <Button style={{marginLeft: '5px', marginRight: '5px'}} variant="warning" onClick={() => handleShow(elem)}><Pencil/></Button>
                 </div>         
               </Col>
               </Row>
@@ -108,11 +140,15 @@ export function ListPage() {
 
   return (
     <div style={{marginBottom: '20px'}}>
-      <ListGroup >
+      <div style={{width: '100%', textAlign: 'center', margin: '10px'}}>
+        <Button style={{marginRight: '10px'}} variant="primary" onClick={() => handleShow(false)}>Add Item</Button>
+        <Button style={{marginLeft: '10px'}} variant="secondary" onClick={() => setShowBlocked(!showBlocked)}>{showBlocked ? 'Show Enabled' : 'Show Blocked'}</Button>
+      </div>
+      <ListGroup>
         {final}  
       </ListGroup>
       <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
+        <Modal.Header>
           <Modal.Title>{edit ? 'Edit' : 'New'} Masked Mail</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -130,9 +166,13 @@ export function ListPage() {
           </form>
         </Modal.Body>
         <Modal.Footer>
-         <Button variant="success" onClick={saveItem} type="submit">Save</Button>
+         <Button variant="primary" onClick={saveItem} type="submit">Save</Button>
+          {edit &&
+            <Button variant={elem.state === 'enabled' ? 'danger' : 'success'} onClick={toggleItem} type="submit">
+              {elem.state === 'enabled' ? 'Block' : 'Enable'}
+            </Button>}
           <Button variant="secondary" onClick={handleClose}>
-            Close
+            Cancel
           </Button>
         </Modal.Footer>
       </Modal>
