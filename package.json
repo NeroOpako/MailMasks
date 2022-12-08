@@ -8,6 +8,7 @@
   "dependencies": {
     "bootstrap": "^5.2.3",
     "fastmail-masked-email": "^1.0.0-alpha.2",
+    "lint": "^0.8.19",
     "lodash": "^4.17.21",
     "next": "latest",
     "react": "^17.0.2",
