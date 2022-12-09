@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import styles from '../styles/home.module.css'
-import { ListPage } from '../pages/list'
+import { ListPage } from '../components/list'
 import { Button, Form, Stack  } from 'react-bootstrap';
 import { EnvelopeDash } from 'react-bootstrap-icons';
 
