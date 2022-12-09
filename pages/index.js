@@ -1,10 +1,8 @@
-import { useCallback, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import styles from '../styles/home.module.css'
-import Image from 'next/image'
-import {LoginPage} from '../pages/login'
-import {ListPage} from '../pages/list'
+import { ListPage } from '../pages/list'
 import { Button, Form, Stack  } from 'react-bootstrap';
-import { EnvelopeDash, Save } from 'react-bootstrap-icons';
+import { EnvelopeDash } from 'react-bootstrap-icons';
 
 function Home() {
   const [token, setToken] = useState();

@@ -1,9 +1,9 @@
-import { useCallback, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { list, getSession, create, disable, enable, update, remove } from 'fastmail-masked-email';
 import { Button, Toast, ToastContainer, Stack, Spinner, ListGroup, Container, Row, Col, Modal  } from 'react-bootstrap';
-import { Pencil, SlashCircle, Clipboard } from 'react-bootstrap-icons';
+import { Pencil, Clipboard } from 'react-bootstrap-icons';
 
-export default function ListPage() {
+export function ListPage() {
   const [session, setSession] = useState(null)
   const [isLoading, setLoading] = useState(false)
   const [items, setItems] = useState(null)
