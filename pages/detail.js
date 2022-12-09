@@ -6,7 +6,7 @@ import { Save } from 'react-bootstrap-icons';
 
 
 
-export function DetailPage(session, isEdit) {
+export default function DetailPage(session, isEdit) {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);

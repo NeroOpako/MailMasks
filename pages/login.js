@@ -4,7 +4,7 @@ import styles from '../styles/home.module.css'
 import { list, getSession } from 'fastmail-masked-email';
 
 
-export function LoginPage(token) {
+export default function LoginPage(token) {
   
   const addToken = (e) => {
     e.preventDefault();

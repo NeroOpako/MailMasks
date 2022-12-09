@@ -3,7 +3,7 @@ import { list, getSession, create, disable, enable, update, remove } from 'fastm
 import { Button, Toast, ToastContainer, Stack, Spinner, ListGroup, Container, Row, Col, Modal  } from 'react-bootstrap';
 import { Pencil, SlashCircle, Clipboard } from 'react-bootstrap-icons';
 
-export function ListPage() {
+export default function ListPage() {
   const [session, setSession] = useState(null)
   const [isLoading, setLoading] = useState(false)
   const [items, setItems] = useState(null)
